@@ -8,6 +8,14 @@
 #include "DistrhoPlugin.hpp"
 #include "extra/ValueSmoother.hpp"
 
+#include "../fmtoy/cmdline.h"
+#include "../fmtoy/tools.h"
+#include "../fmtoy/fmtoy.h"
+#include "../fmtoy/libfmvoice/fm_voice.h"
+#include "../fmtoy/midi.h"
+
+#define DEFAULT_CLOCK 3579545
+
 START_NAMESPACE_DISTRHO
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -46,7 +54,13 @@ public:
         fSmoothGain.setTargetValue(DB_CO(0.f));
         fSmoothGain.setTimeConstant(0.020f); // 20ms
     }
+    
+    struct fmtoy fmtoy;
 
+    ~ImGuiPluginDSP()
+    {
+      fmtoy_destroy(&fmtoy);
+    }
 protected:
     // ----------------------------------------------------------------------------------------------------------------
     // Information
@@ -163,6 +177,8 @@ protected:
     void activate() override
     {
         fSmoothGain.clearToTargetValue();
+        
+        fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
     }
 
    /**

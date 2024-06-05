@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.7)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(NAME imgui-demo-plugin)
+set(NAME fmtoy-plugin)
 project(${NAME})
 
 add_subdirectory(dpf)
@@ -22,7 +22,7 @@ set(fmtoy_src fmtoy/fmtoy.c fmtoy/cmdline.c fmtoy/tools.c fmtoy/midi.c
 fmtoy/fmtoy_ym2610b.c fmtoy/fmtoy_ym2612.c fmtoy/fmtoy_ym3812.c fmtoy/fmtoy_ymf262.c)
 
 dpf_add_plugin(${NAME}
-  TARGETS vst3
+  TARGETS vst3 vst2 lv2
   FILES_DSP
       src/PluginDSP.cpp
       ${fmtoy_src}
@@ -36,5 +36,5 @@ target_include_directories(${NAME} PUBLIC dpf-widgets/opengl)
 
 target_link_libraries(${NAME} PUBLIC z)
 
-add_custom_command(TARGET imgui-demo-plugin-vst3 POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:imgui-demo-plugin-vst3>/../Resources)
+add_custom_command(TARGET fmtoy-plugin-vst3 POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:fmtoy-plugin-vst3>/../Resources)

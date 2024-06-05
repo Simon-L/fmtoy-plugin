@@ -11,7 +11,9 @@
 #include "DistrhoPluginUtils.hpp"
 
 #include <string>
+#include <list>
 #include <iostream>
+
 extern "C"
 {
     #include "../fmtoy/cmdline.h"
@@ -25,6 +27,9 @@ extern "C"
 namespace fs = std::filesystem;
 
 #define DEFAULT_CLOCK 3579545
+
+#include <json.hpp>
+using json = nlohmann::json;
 
 START_NAMESPACE_DISTRHO
 
@@ -56,22 +61,33 @@ class ImGuiPluginDSP : public Plugin
 public:
     struct fmtoy fmtoy;
     fs::path res;
-    bool fmtoy_init_state;
+    fs::path opm_file;
+    std::list<fs::path> opm_list;
    /**
       Plugin class constructor.@n
       You must set all parameter values to their defaults, matching ParameterRanges::def.
     */
     ImGuiPluginDSP()
-        : Plugin(kParamCount, 0, 0) // parameters, programs, states
+        : Plugin(kParamCount, 0, 2) // parameters, programs, states
     {
         fSmoothGain.setSampleRate(getSampleRate());
         fSmoothGain.setTargetValue(DB_CO(0.f));
         fSmoothGain.setTimeConstant(0.020f); // 20ms
 
         res = fs::path(getBinaryFilename()).parent_path().parent_path() / "Resources";
+        for (auto const& dir_entry : std::filesystem::directory_iterator{res})
+        {
+          opm_list.push_back(dir_entry.path().filename());
+        }
+        uint n = 0;
+        opm_list.sort();
+        for (auto const& i : opm_list) {
+          // std::cout << n << i << std::endl;
+          n++;
+        }
+        opm_file = opm_list.front();
         
         fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
-        fmtoy_init_state = true;
 
     }
     
@@ -157,7 +173,33 @@ protected:
 
     // ----------------------------------------------------------------------------------------------------------------
     // Internal data
-
+    
+    /**
+       Initialize the state @a index.@n
+       This function will be called once, shortly after the plugin is created.@n
+       Must be implemented by your plugin class only if DISTRHO_PLUGIN_WANT_STATE is enabled.
+     */
+    void initState(uint32_t index, State& state) override
+    {
+      // std::cout << "initState " << index << '\n';
+      if (index == 0)
+      {
+        json j = opm_list;
+        state.key = "file_list";
+        state.defaultValue = j.dump().c_str();
+      }
+      if (index == 1)
+      {
+        state.key = "file";
+        state.defaultValue = "";
+        std::cout << "DSP initState 1 " << state.key << '\n';
+      }
+    }
+    
+    void setState(const char* key, const char* value) override
+    {
+      std::cout << "!!!!!!!!!!!!!!!DSP setState " << key << " " << value << '\n';
+    }
    /**
       Get the current value of a parameter.@n
       The host may call this function from any context, including realtime processing.
@@ -194,14 +236,10 @@ protected:
         std::cout << "Activating...  SampleRate : " << getSampleRate() << '\n';
         fSmoothGain.clearToTargetValue();
         
-        // fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
-        // fmtoy_init_state = true;
-        
         struct fm_voice_bank bank;
     		fm_voice_bank_init(&bank);
     		size_t data_len;
-        auto opm_file = fs::path(res / "default.opm");
-    		uint8_t *data = load_file(opm_file.c_str(), &data_len);
+    		uint8_t *data = load_file((res / opm_file).c_str(), &data_len);
         std::cout << "got data_len: " << data_len  << '\n';
         if(!data) {
     			fprintf(stderr, "Could not open %s\n", opm_file.c_str());
@@ -213,7 +251,7 @@ protected:
         for(int i = 0; i < 16; i++)
           fmtoy_program_change(&fmtoy, i, 0);
           
-        std::cout << "Done with sampleRate : " << getSampleRate() << '\n';
+        std::cout << "Done, loaded " << opm_file << " with sampleRate : " << getSampleRate() << '\n';
     }
     
 #define EVENT_NOTEON 0x90

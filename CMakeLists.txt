@@ -22,7 +22,7 @@ set(fmtoy_src fmtoy/fmtoy.c fmtoy/cmdline.c fmtoy/tools.c fmtoy/midi.c
 fmtoy/fmtoy_ym2610b.c fmtoy/fmtoy_ym2612.c fmtoy/fmtoy_ym3812.c fmtoy/fmtoy_ymf262.c)
 
 dpf_add_plugin(${NAME}
-  TARGETS vst3 vst2 lv2
+  TARGETS vst3
   FILES_DSP
       src/PluginDSP.cpp
       ${fmtoy_src}
@@ -31,6 +31,7 @@ dpf_add_plugin(${NAME}
       dpf-widgets/opengl/DearImGui.cpp)
 
 target_include_directories(${NAME} PUBLIC src)
+target_include_directories(${NAME} PUBLIC include)
 target_include_directories(${NAME} PUBLIC dpf-widgets/generic)
 target_include_directories(${NAME} PUBLIC dpf-widgets/opengl)
 

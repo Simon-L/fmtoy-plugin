@@ -1,0 +1,107 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE CARLA-PROJECT>
+<CARLA-PROJECT VERSION='2.6'>
+ <EngineSettings>
+  <ForceStereo>false</ForceStereo>
+  <PreferPluginBridges>false</PreferPluginBridges>
+  <PreferUiBridges>true</PreferUiBridges>
+  <UIsAlwaysOnTop>false</UIsAlwaysOnTop>
+  <MaxParameters>200</MaxParameters>
+  <UIBridgesTimeout>4000</UIBridgesTimeout>
+ </EngineSettings>
+
+ <Transport>
+  <BeatsPerMinute>120</BeatsPerMinute>
+ </Transport>
+
+ <!-- FM-Toy -->
+ <Plugin>
+  <Info>
+   <Type>VST3</Type>
+   <Name>FM-Toy</Name>
+   <Binary>/home/xox/Sync/SyncMore/fmtoy-plugin/build/bin/fmtoy-plugin.vst3</Binary>
+   <Label>FM-Toy</Label>
+  </Info>
+
+  <Data>
+   <Active>Yes</Active>
+   <ControlChannel>1</ControlChannel>
+   <Options>0x1f9</Options>
+
+   <Chunk>
+X19kcGZfc3RhdGVfYmVnaW5fXwBmaWxlAENhc3RsZXZhbmlhX0Jsb29kbGluZXNfLV8xOV8tX01lc3Nlbmdlcl9Gcm9tX0RldmlsXyhBcmVhX0Jvc3NfVGhl
+bWUpLm9wbQBmaWxlX2xpc3QAWyIwX19fX2RlZmF1bHQub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzAxXy1fS29uYW1pX0xvZ28ub3BtIiwiQ2Fz
+dGxldmFuaWFfQmxvb2RsaW5lc18tXzAyXy1fVGhlX0JlYXRpbmdfaW5fRGFya25lc3NfKFRpdGxlX1RoZW1lKS5vcG0iLCJDYXN0bGV2YW5pYV9CbG9vZGxp
+bmVzXy1fMDNfLV9BX1Zpc2lvbl9vZl9EYXJrX1NlY3JldHNfKE9wZW5pbmdfVGhlbWUpLm9wbSIsIkNhc3RsZXZhbmlhX0Jsb29kbGluZXNfLV8wNF8tX0Jv
+bmRzX29mX0JyYXZlX01lbl8oQ2hhcmFjdGVyX1NlbGVjdGlvbikub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzA1Xy1fQXJkdW91c19Kb3VybmV5
+XyhNYXBfVGhlbWUpLm9wbSIsIkNhc3RsZXZhbmlhX0Jsb29kbGluZXNfLV8wNl8tX1JlaW5jYXJuYXRlZF9Tb3VsLF9QYXJ0XzFfKEludHJvZHVjdGlvbiku
+b3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzA3Xy1fUmVpbmNhcm5hdGVkX1NvdWwsX1BhcnRfMl8oU3RhZ2VfMSkub3BtIiwiQ2FzdGxldmFuaWFf
+Qmxvb2RsaW5lc18tXzA4Xy1fVGhlX1NpbmtpbmdfT2xkX1NhbmN0dWFyeV8oU3RhZ2VfMikub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzA5Xy1f
+VGhlX0Rpc2NvbG9yZWRfV2FsbF8oU3RhZ2VfMykub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzEwXy1fQmVnaW5uaW5nXyhDbGFzc2ljX1R1bmVf
+MSkub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzExXy1fQmxvb2R5X1RlYXJzXyhDbGFzc2ljX1R1bmVfMikub3BtIiwiQ2FzdGxldmFuaWFfQmxv
+b2RsaW5lc18tXzEyXy1fVmFtcGlyZV9LaWxsZXJfKENsYXNzaWNfVHVuZV8zKS5vcG0iLCJDYXN0bGV2YW5pYV9CbG9vZGxpbmVzXy1fMTNfLV9BZnRlcl90
+aGVfR29vZF9GaWdodF8oR2FtZV9PdmVyKS5vcG0iLCJDYXN0bGV2YW5pYV9CbG9vZGxpbmVzXy1fMTRfLV9NeXN0ZXJpb3VzX0N1cnNlXyhQYXNzd29yZCku
+b3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzE1Xy1fSXJvbi1CbHVlX0ludGVudGlvbl8oU3RhZ2VfNCkub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2Rs
+aW5lc18tXzE2Xy1fVGhlX1ByYXllcl9vZl9hX1RyYWdpY19RdWVlbl8oU3RhZ2VfNSkub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzE3Xy1fQ2Fs
+bGluZ19Gcm9tX0hlYXZlbl8oU3RhZ2VfNikub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzE4Xy1fUHJlc3N1cmVfKEludmluY2liaWxpdHkpLm9w
+bSIsIkNhc3RsZXZhbmlhX0Jsb29kbGluZXNfLV8xOV8tX01lc3Nlbmdlcl9Gcm9tX0RldmlsXyhBcmVhX0Jvc3NfVGhlbWUpLm9wbSIsIkNhc3RsZXZhbmlh
+X0Jsb29kbGluZXNfLV8yMF8tX05vdGhpbmdfdG9fTG9zZV8oU3RhZ2VfMUQpLm9wbSIsIkNhc3RsZXZhbmlhX0Jsb29kbGluZXNfLV8yMV8tX1RoZV9TaXhf
+U2VydmFudHNfb2ZfdGhlX0RldmlsXyhTdGFnZV9Cb3NzX1RoZW1lKS5vcG0iLCJDYXN0bGV2YW5pYV9CbG9vZGxpbmVzXy1fMjJfLV9UaGVtZV9vZl9TaW1v
+bl8oQ2xhc3NpY19UdW5lXzQpLm9wbSIsIkNhc3RsZXZhbmlhX0Jsb29kbGluZXNfLV8yM18tX1RoZV9WYW1waXJlJ3NfU3RvbWFjaF8oRmluYWxfQm9zc19U
+aGVtZSkub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzI0Xy1fU3RhZ2VfQ2xlYXIub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzI1Xy1f
+T3JiLm9wbSIsIkNhc3RsZXZhbmlhX0Jsb29kbGluZXNfLV8yNl8tX0VuZXJneV9PcmIub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzI3Xy1fRHJh
+Y3VsYV9PcmIub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzI4Xy1fQWxsX0NsZWFyLm9wbSIsIkNhc3RsZXZhbmlhX0Jsb29kbGluZXNfLV8yOV8t
+X1RvZ2V0aGVyX0ZvcmV2ZXJfKEVuZGluZ19UaGVtZSkub3BtIiwiQ2FzdGxldmFuaWFfQmxvb2RsaW5lc18tXzMwXy1fUmVxdWllbV9mb3JfdGhlX05hbWVs
+ZXNzX1ZpY3RpbXNfKFN0YWZmX1JvbGwpLm9wbSIsIkNhc3RsZXZhbmlhX0Jsb29kbGluZXNfLV8zMV8tX0RlYXRoLm9wbSJdAF9fZHBmX3N0YXRlX2VuZF9f
+AF9fZHBmX3BhcmFtZXRlcnNfYmVnaW5fXwBnYWluADAAX19kcGZfcGFyYW1ldGVyc19lbmRfXwD+AA==
+   </Chunk>
+  </Data>
+ </Plugin>
+
+ <ExternalPatchbay>
+  <Connection>
+   <Source>Firefox Developer Edition:output_FL</Source>
+   <Target>Scarlett 18i8 3rd Gen Surround analogique 7.1:playback_FL</Target>
+  </Connection>
+  <Connection>
+   <Source>Firefox Developer Edition:output_FR</Source>
+   <Target>Scarlett 18i8 3rd Gen Surround analogique 7.1:playback_FR</Target>
+  </Connection>
+  <Connection>
+   <Source>Firefox Developer Edition:output_RL</Source>
+   <Target>Scarlett 18i8 3rd Gen Surround analogique 7.1:playback_RL</Target>
+  </Connection>
+  <Connection>
+   <Source>Firefox Developer Edition:output_RR</Source>
+   <Target>Scarlett 18i8 3rd Gen Surround analogique 7.1:playback_RR</Target>
+  </Connection>
+  <Connection>
+   <Source>Firefox Developer Edition:output_FC</Source>
+   <Target>Scarlett 18i8 3rd Gen Surround analogique 7.1:playback_FC</Target>
+  </Connection>
+  <Connection>
+   <Source>Firefox Developer Edition:output_LFE</Source>
+   <Target>Scarlett 18i8 3rd Gen Surround analogique 7.1:playback_LFE</Target>
+  </Connection>
+  <Connection>
+   <Source>Firefox Developer Edition:output_SL</Source>
+   <Target>Scarlett 18i8 3rd Gen Surround analogique 7.1:playback_SL</Target>
+  </Connection>
+  <Connection>
+   <Source>Firefox Developer Edition:output_SR</Source>
+   <Target>Scarlett 18i8 3rd Gen Surround analogique 7.1:playback_SR</Target>
+  </Connection>
+  <Connection>
+   <Source>FM-Toy:output_1</Source>
+   <Target>Scarlett 18i8 3rd Gen Surround analogique 7.1:playback_FC</Target>
+  </Connection>
+  <Connection>
+   <Source>FM-Toy:output_2</Source>
+   <Target>Scarlett 18i8 3rd Gen Surround analogique 7.1:playback_FL</Target>
+  </Connection>
+  <Connection>
+   <Source>Midi-Bridge:AKAI MPK mini 3 at usb-0000:00:14-0-1- full speed:(capture_0) MPK mini 3 MIDI 1</Source>
+   <Target>FM-Toy:events-in</Target>
+  </Connection>
+ </ExternalPatchbay>
+</CARLA-PROJECT>

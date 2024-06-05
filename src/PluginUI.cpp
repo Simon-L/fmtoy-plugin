@@ -66,10 +66,8 @@ protected:
         ImGui::SetNextWindowPos(ImVec2(margin, margin));
         ImGui::SetNextWindowSize(ImVec2(width - 2 * margin, height - 2 * margin));
 
-        if (ImGui::Begin("Simple gain", nullptr, ImGuiWindowFlags_NoResize))
+        if (ImGui::Begin("fmtoy", nullptr, ImGuiWindowFlags_NoResize))
         {
-            static char aboutText[256] = "This is a demo plugin made with ImGui.\n";
-            ImGui::InputTextMultiline("About", aboutText, sizeof(aboutText));
 
             if (ImGui::SliderFloat("Gain (dB)", &fGain, -90.0f, 30.0f))
             {

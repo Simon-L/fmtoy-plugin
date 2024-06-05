@@ -1,5 +1,5 @@
-# DPF + ImGui template plugin project
+# fmtoy as a plugin using DPF
 
-This repository contains an example audio plugin project using DPF and ImGui.
-
-![Screenshot](Screenshot.png "Screenshot")
+https://github.com/vampirefrog/fmtoy  
+\+  
+https://github.com/DISTRHO/DPF/  

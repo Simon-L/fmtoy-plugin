@@ -10,7 +10,7 @@
    This is used to identify your plugin before a Plugin instance can be created.
    @note This macro is required.
  */
-#define DISTRHO_PLUGIN_NAME "ImGuiSimpleGain"
+#define DISTRHO_PLUGIN_NAME "FM-Toy"
 
 /**
    Number of audio inputs the plugin has.
@@ -28,7 +28,7 @@
    The plugin URI when exporting in LV2 format.
    @note This macro is required.
  */
-#define DISTRHO_PLUGIN_URI "urn:distrho:examples:imguisimplegain"
+#define DISTRHO_PLUGIN_URI "urn:vgmrips:fmtoy"
 
 /**
    Whether the plugin has a custom %UI.
@@ -223,7 +223,7 @@
 
    See http://lv2plug.in/ns/lv2core for more information.
  */
-#define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:AmplifierPlugin"
+#define DISTRHO_PLUGIN_LV2_CATEGORY "lv2:InstrumentPlugin"
 
 /**
    Custom VST3 categories for the plugin.@n
@@ -267,7 +267,7 @@
       - Mono
       - Stereo
  */
-#define DISTRHO_PLUGIN_VST3_CATEGORIES "Fx|Dynamics|Stereo"
+#define DISTRHO_PLUGIN_VST3_CATEGORIES "Instrument|Synth|Stereo"
 
 /**
    Custom CLAP features for the plugin.@n
@@ -325,10 +325,10 @@
       - surround
       - ambisonic
 */
-#define DISTRHO_PLUGIN_CLAP_FEATURES "audio-effect", "stereo"
+#define DISTRHO_PLUGIN_CLAP_FEATURES "instrument", "stereo"
 
 /**
    The plugin id when exporting in CLAP format, in reverse URI form.
    @note This macro is required when building CLAP plugins
 */
-#define DISTRHO_PLUGIN_CLAP_ID "studio.kx.distrho.examples.imguisimplegain"
+#define DISTRHO_PLUGIN_CLAP_ID "vgmrips.fmtoy"

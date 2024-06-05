@@ -86,7 +86,7 @@ protected:
     */
     const char* getLabel() const noexcept override
     {
-        return "SimpleGain";
+        return "fmtoy";
     }
 
    /**
@@ -95,7 +95,7 @@ protected:
     */
     const char* getDescription() const override
     {
-        return "A simple audio volume gain plugin with ImGui for its GUI";
+        return "fmtoy";
     }
 
    /**
@@ -103,7 +103,7 @@ protected:
     */
     const char* getMaker() const noexcept override
     {
-        return "Jean Pierre Cimalando, falkTX";
+        return "vampirefrog, Simon-L, Jean Pierre Cimalando, falkTX";
     }
 
    /**
@@ -131,7 +131,7 @@ protected:
     */
     int64_t getUniqueId() const noexcept override
     {
-        return d_cconst('d', 'I', 'm', 'G');
+        return d_cconst('f', 'm', 't', 'y');
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -214,7 +214,6 @@ protected:
           fmtoy_program_change(&fmtoy, i, 0);
           
         std::cout << "Done with sampleRate : " << getSampleRate() << '\n';
-        // printf("%s\n", resources_path.c_str());
     }
     
 #define EVENT_NOTEON 0x90

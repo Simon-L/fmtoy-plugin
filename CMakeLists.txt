@@ -5,14 +5,14 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(NAME imgui-demo-plugin)
 project(${NAME})
 
 add_subdirectory(dpf)
 
-set(fmtoy_src fmtoy/fmtoy_jack.c fmtoy/fmtoy.c fmtoy/cmdline.c fmtoy/tools.c fmtoy/midi.c
+set(fmtoy_src fmtoy/fmtoy.c fmtoy/cmdline.c fmtoy/tools.c fmtoy/midi.c
 	fmtoy/libfmvoice/fm_voice.c fmtoy/libfmvoice/op3_file.c fmtoy/libfmvoice/opm_file.c
     fmtoy/libfmvoice/bnk_file.c fmtoy/libfmvoice/ins_file.c fmtoy/libfmvoice/sbi_file.c
     fmtoy/libfmvoice/tfi_file.c fmtoy/libfmvoice/y12_file.c fmtoy/libfmvoice/syx_dx21.c
@@ -33,3 +33,8 @@ dpf_add_plugin(${NAME}
 target_include_directories(${NAME} PUBLIC src)
 target_include_directories(${NAME} PUBLIC dpf-widgets/generic)
 target_include_directories(${NAME} PUBLIC dpf-widgets/opengl)
+
+target_link_libraries(${NAME} PUBLIC z)
+
+add_custom_command(TARGET imgui-demo-plugin-vst3 POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/res $<TARGET_FILE_DIR:imgui-demo-plugin-vst3>/../Resources)

@@ -8,15 +8,26 @@
 #include "DistrhoPlugin.hpp"
 #include "extra/ValueSmoother.hpp"
 
-#include "../fmtoy/cmdline.h"
-#include "../fmtoy/tools.h"
-#include "../fmtoy/fmtoy.h"
-#include "../fmtoy/libfmvoice/fm_voice.h"
-#include "../fmtoy/midi.h"
+#include "DistrhoPluginUtils.hpp"
+
+#include <string>
+#include <iostream>
+extern "C"
+{
+    #include "../fmtoy/cmdline.h"
+    #include "../fmtoy/tools.h"
+    #include "../fmtoy/fmtoy.h"
+    #include "../fmtoy/libfmvoice/fm_voice.h"
+    #include "../fmtoy/midi.h"
+}
+
+#include <filesystem>
+namespace fs = std::filesystem;
 
 #define DEFAULT_CLOCK 3579545
 
 START_NAMESPACE_DISTRHO
+
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -43,6 +54,9 @@ class ImGuiPluginDSP : public Plugin
     ExponentialValueSmoother fSmoothGain;
 
 public:
+    struct fmtoy fmtoy;
+    fs::path res;
+    bool fmtoy_init_state;
    /**
       Plugin class constructor.@n
       You must set all parameter values to their defaults, matching ParameterRanges::def.
@@ -53,14 +67,15 @@ public:
         fSmoothGain.setSampleRate(getSampleRate());
         fSmoothGain.setTargetValue(DB_CO(0.f));
         fSmoothGain.setTimeConstant(0.020f); // 20ms
+
+        res = fs::path(getBinaryFilename()).parent_path().parent_path() / "Resources";
+        
+        fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
+        fmtoy_init_state = true;
+
     }
     
-    struct fmtoy fmtoy;
 
-    ~ImGuiPluginDSP()
-    {
-      fmtoy_destroy(&fmtoy);
-    }
 protected:
     // ----------------------------------------------------------------------------------------------------------------
     // Information
@@ -176,31 +191,95 @@ protected:
     */
     void activate() override
     {
+        std::cout << "Activating...  SampleRate : " << getSampleRate() << '\n';
         fSmoothGain.clearToTargetValue();
         
-        fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
+        // fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
+        // fmtoy_init_state = true;
+        
+        struct fm_voice_bank bank;
+    		fm_voice_bank_init(&bank);
+    		size_t data_len;
+        auto opm_file = fs::path(res / "default.opm");
+    		uint8_t *data = load_file(opm_file.c_str(), &data_len);
+        std::cout << "got data_len: " << data_len  << '\n';
+        if(!data) {
+    			fprintf(stderr, "Could not open %s\n", opm_file.c_str());
+    			return;
+    		}
+    		fm_voice_bank_load(&bank, data, data_len);
+    		fmtoy_append_fm_voice_bank(&fmtoy, &bank);
+        
+        for(int i = 0; i < 16; i++)
+          fmtoy_program_change(&fmtoy, i, 0);
+          
+        std::cout << "Done with sampleRate : " << getSampleRate() << '\n';
+        // printf("%s\n", resources_path.c_str());
     }
-
+    
+#define EVENT_NOTEON 0x90
+#define EVENT_NOTEOFF 0x80
+#define EVENT_PITCHBEND 0xE0
+#define EVENT_PGMCHANGE 0xC0
+#define EVENT_CONTROLLER 0xB0
+    
+    void handleMidi(const MidiEvent* event)
+    {   
+      uint8_t b0 = event->data[0]; // status + channel
+      uint8_t b0_status = b0 & 0xF0; // status + channel
+      uint8_t b0_channel = b0 & 0x0F; // status + channel
+      uint8_t b1 = event->data[1]; // note
+      uint8_t b2 = event->data[2]; // velocity
+      d_stdout("MIDI in 0x%x (status: 0x%x, channel: 0x%x) %d %d", b0, b0_status, b0_channel, b1, b2);
+      
+      switch (b0_status) {
+        case EVENT_NOTEON:
+          printf("%s: Note \033[32mON\033[0m  %s%d (%d) %d\n", fmtoy_channel_name(&fmtoy, b0_channel), midi_note_name(b1), midi_note_octave(b1), b1, b2);
+          if(b2 > 0)
+            fmtoy_note_on(&fmtoy, b0_channel, b1, b2);
+          else
+            fmtoy_note_off(&fmtoy, b0_channel, b1, b2);
+          break;
+        case EVENT_NOTEOFF:
+          printf("%s: Note \033[31mOFF\033[0m %s%d (%d) %d\n", fmtoy_channel_name(&fmtoy, b0_channel), midi_note_name(b1), midi_note_octave(b1), b1, b2);
+          fmtoy_note_off(&fmtoy, b0_channel, b1, b2);
+          break;
+        case EVENT_PITCHBEND:
+          printf("\033[33mPitchbend \033[1m%d\033[0m \n", (b1 | (b2 << 8)));
+          fmtoy_pitch_bend(&fmtoy, b0_channel, (b1 | (b2 << 8)));
+          break;
+        case EVENT_PGMCHANGE:
+          printf("\033[33mProgram \033[1m%d\033[0m %.256s\n", b1, fmtoy.num_voices > b1 ? fmtoy.opm_voices[b1].name : "No voice");
+          for(int i = 0; i < 16; i++)
+            fmtoy_program_change(&fmtoy, i, b1);
+          break;
+        case EVENT_CONTROLLER:
+          printf("%s: CC 0x%02x (%s) %d\n", fmtoy_channel_name(&fmtoy, b0_channel), b1, midi_cc_name(b1), b2);
+          fmtoy_cc(&fmtoy, b0_channel, b1, b2);
+          break;
+      }
+    }
    /**
       Run/process function for plugins without MIDI input.
       @note Some parameters might be null if there are no audio inputs or outputs.
     */
-    void run(const float** inputs, float** outputs, uint32_t frames) override
+    void run(const float** inputs, float** outputs, uint32_t frames, const MidiEvent* midiEvents, uint32_t midiEventCount) override
     {
-        // get the left and right audio inputs
-        const float* const inpL = inputs[0];
-        const float* const inpR = inputs[1];
-
+        for (size_t i = 0; i < midiEventCount; i++) {
+          handleMidi(&midiEvents[i]);
+        }
         // get the left and right audio outputs
         float* const outL = outputs[0];
         float* const outR = outputs[1];
+        
+        fmtoy_render(&fmtoy, frames);
 
         // apply gain against all samples
         for (uint32_t i=0; i < frames; ++i)
         {
             const float gain = fSmoothGain.next();
-            outL[i] = inpL[i] * gain;
-            outR[i] = inpR[i] * gain;
+            outL[i] = (fmtoy.render_buf_l[i] / 32767.0f) * gain;
+            outR[i] = (fmtoy.render_buf_r[i] / 32767.0f) * gain;
         }
     }
 

@@ -16,7 +16,7 @@
    Number of audio inputs the plugin has.
    @note This macro is required.
  */
-#define DISTRHO_PLUGIN_NUM_INPUTS 2
+#define DISTRHO_PLUGIN_NUM_INPUTS 0
 
 /**
    Number of audio outputs the plugin has.
@@ -48,7 +48,7 @@
    @ref DISTRHO_PLUGIN_WANT_MIDI_INPUT is automatically enabled when this is too.
    @see DISTRHO_PLUGIN_WANT_MIDI_INPUT
  */
-#define DISTRHO_PLUGIN_IS_SYNTH 0
+#define DISTRHO_PLUGIN_IS_SYNTH 1
 
 /**
    Enable direct access between the %UI and plugin code.
@@ -68,7 +68,7 @@
    Whether the plugin wants MIDI input.@n
    This is automatically enabled if @ref DISTRHO_PLUGIN_IS_SYNTH is true.
  */
-#define DISTRHO_PLUGIN_WANT_MIDI_INPUT 0
+#define DISTRHO_PLUGIN_WANT_MIDI_INPUT 1
 
 /**
    Whether the plugin wants MIDI output.

@@ -63,6 +63,7 @@ public:
     fs::path opm_file;
     std::list<fs::path> opm_list;
     bool requestChangeOpmFile = false;
+    uint8_t velocity_map[128];
    /**
       Plugin class constructor.@n
       You must set all parameter values to their defaults, matching ParameterRanges::def.
@@ -79,6 +80,9 @@ public:
         
         fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
 
+        for (size_t i = 0; i < 127; i++) {
+          velocity_map[i] = 127.0 * std::pow((float(i) / 127.0), 1.0/2.5);
+        }
     }
     
 
@@ -227,7 +231,7 @@ protected:
         case EVENT_NOTEON:
           printf("%s: Note \033[32mON\033[0m  %s%d (%d) %d\n", fmtoy_channel_name(&fmtoy, b0_channel), midi_note_name(b1), midi_note_octave(b1), b1, b2);
           if(b2 > 0)
-            fmtoy_note_on(&fmtoy, b0_channel, b1, b2);
+            fmtoy_note_on(&fmtoy, b0_channel, b1, velocity_map[b2]);
           else
             fmtoy_note_off(&fmtoy, b0_channel, b1, b2);
           break;

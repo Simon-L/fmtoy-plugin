@@ -16,7 +16,6 @@
 
 extern "C"
 {
-    #include "../fmtoy/cmdline.h"
     #include "../fmtoy/tools.h"
     #include "../fmtoy/fmtoy.h"
     #include "../fmtoy/libfmvoice/fm_voice.h"

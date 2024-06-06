@@ -64,13 +64,12 @@ public:
     std::list<fs::path> opm_list;
     bool requestChangeOpmFile = false;
     uint8_t velocity_map[128];
-    std::vector<std::pair<std::string, std::string>> internal_state;
    /**
       Plugin class constructor.@n
       You must set all parameter values to their defaults, matching ParameterRanges::def.
     */
     ImGuiPluginDSP()
-        : Plugin(kParamCount, 0, 3) // parameters, programs, states
+        : Plugin(kParamCount, 0, 2) // parameters, programs, states
     {
         fSmoothGain.setSampleRate(getSampleRate());
         fSmoothGain.setTargetValue(DB_CO(0.f));
@@ -130,7 +129,6 @@ protected:
         json j = opm_list;
         state.key = "file_list";
         state.defaultValue = j.dump().c_str();
-        internal_state.push_back(std::pair<std::string, std::string>("file_list", state.defaultValue));
       }
       if (index == 1)
       {
@@ -138,13 +136,6 @@ protected:
         state.defaultValue = "";
         state.hints = kStateIsFilenamePath;
         std::cout << "DSP initState 1 " << state.key << '\n';
-        internal_state.push_back(std::pair<std::string, std::string>("file", state.defaultValue));
-      }
-      if (index == 2)
-      {
-        state.key = "status";
-        state.defaultValue = "";
-        internal_state.push_back(std::pair<std::string, std::string>("status", state.defaultValue));
       }
     }
     
@@ -160,18 +151,9 @@ protected:
           opm_file = old_file;
         } else {
           std::cout << "OK! " << opm_file << '\n';
-          internal_state[1] = std::pair<std::string, std::string>("file", value);
           requestChangeOpmFile = true;
         }
       }
-    }
-    
-    const char* getState(const char* key)
-    {
-      if (std::strcmp(key, "file") == 0)
-        return internal_state[1].second.c_str();
-      if (std::strcmp(key, "status") == 0)
-        return internal_state[2].second.c_str();
     }
    /**
       Get the current value of a parameter.@n
@@ -215,15 +197,6 @@ protected:
         fmtoy_program_change(&fmtoy, i, 0);
         
       std::cout << "Done, loaded " << fmtoy.num_voices << " voices from " << opm_file << " (" << data_len << ") with sampleRate : " << getSampleRate() << '\n';
-      
-      // std::cout << bank.num_opm_voices << bank.opm_voices[0].name << '\n';
-      std::vector<std::string> names_opm_voices;
-      for (size_t i = 0; i < bank.num_opm_voices; i++) {
-        names_opm_voices.push_back(bank.opm_voices[i].name);
-      }
-      json j(names_opm_voices);
-      std::cout << j.dump() << '\n';
-      setState("status", j.dump().c_str());
     }
 
     // ----------------------------------------------------------------------------------------------------------------

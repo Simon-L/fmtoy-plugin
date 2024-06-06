@@ -59,14 +59,9 @@ protected:
      */
      void stateChanged(const char* key, const char* value) override
      {
-         std::cout << "UI: stateChanged " << key << value << '\n';
+         // std::cout << "UI: stateChanged " << key << value << '\n';
          const bool valueOnOff = (std::strcmp(value, "true") == 0);
 
-         if (std::strlen(value) == 0)
-         {
-           std::cout << "!!!!!!!!!! " << key << " " << value << '\n';
-           return;
-         }
          // check which block changed
          if (std::strcmp(key, "file_list") == 0)
          {
@@ -79,19 +74,7 @@ protected:
          }
          if (std::strcmp(key, "file") == 0)
          {
-           std::cout << "UI: in file " << value << '\n';
-         }
-         if (std::strcmp(key, "status") == 0)
-         {
-           if (std::strlen(value) != 0)
-           {
-             std::cout << "UI: got json: " << value << '\n';
-             std::vector<std::string> names_opm_voices = json::parse(value);
-             for (auto const& n : names_opm_voices)
-             {
-               std::cout << n << '\n';
-             }
-           }
+           std::cout << "UI stateChanged file " << value << '\n';
          }
          // trigger repaint
          repaint();
@@ -144,9 +127,6 @@ protected:
             {
                 editParameter(0, false);
             }
-            
-            auto text = getState("status");
-            ImGui::InputTextMultiline("##status", text, std::strlen(text), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), ImGuiInputTextFlags_ReadOnly);
             
             // ImGui::ShowDemoWindow(nullptr);
         }

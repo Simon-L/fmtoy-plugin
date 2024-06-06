@@ -51,10 +51,12 @@ class ImGuiPluginDSP : public Plugin
 {
     enum Parameters {
         kParamGain = 0,
+        kParamVoice,
         kParamCount
     };
 
     float fGainDB = 0.0f;
+    int fVoice = 0;
     ExponentialValueSmoother fSmoothGain;
 
 public:
@@ -63,6 +65,7 @@ public:
     fs::path opm_file;
     std::list<fs::path> opm_list;
     bool requestChangeOpmFile = false;
+    bool requestChangeVoice = false;
     uint8_t velocity_map[128];
    /**
       Plugin class constructor.@n
@@ -101,16 +104,27 @@ protected:
 
     void initParameter(uint32_t index, Parameter& parameter) override
     {
-        DISTRHO_SAFE_ASSERT_RETURN(index == 0,);
-
-        parameter.ranges.min = -90.0f;
-        parameter.ranges.max = 30.0f;
-        parameter.ranges.def = 0.0f;
-        parameter.hints = kParameterIsAutomatable;
-        parameter.name = "Gain";
-        parameter.shortName = "Gain";
-        parameter.symbol = "gain";
-        parameter.unit = "dB";
+        switch (index) {
+          case 0:
+            parameter.ranges.min = -90.0f;
+            parameter.ranges.max = 30.0f;
+            parameter.ranges.def = 0.0f;
+            parameter.hints = kParameterIsAutomatable;
+            parameter.name = "Gain";
+            parameter.shortName = "Gain";
+            parameter.symbol = "gain";
+            parameter.unit = "dB";
+            break;
+          case 1:
+            parameter.ranges.min = 0;
+            parameter.ranges.max = 128;
+            parameter.ranges.def = 0;
+            parameter.hints = kParameterIsAutomatable|kParameterIsInteger;
+            parameter.name = "Voice";
+            parameter.shortName = "Voice";
+            parameter.symbol = "voice";
+            break;
+        }
     }
 
     // ----------------------------------------------------------------------------------------------------------------
@@ -161,9 +175,14 @@ protected:
     */
     float getParameterValue(uint32_t index) const override
     {
-        DISTRHO_SAFE_ASSERT_RETURN(index == 0, 0.0f);
-
-        return fGainDB;
+        switch (index) {
+          case 0:
+            return fGainDB;
+            break;
+          case 1:
+            return fVoice;
+            break;
+        }
     }
 
    /**
@@ -174,10 +193,17 @@ protected:
     */
     void setParameterValue(uint32_t index, float value) override
     {
-        DISTRHO_SAFE_ASSERT_RETURN(index == 0,);
+        switch (index) {
+          case 0:
+            fGainDB = value;
+            fSmoothGain.setTargetValue(DB_CO(CLAMP(value, -90.0, 30.0)));
+            break;
+          case 1:
+            fVoice = int(value);
+            requestChangeVoice = true;
+            break;
+        }
 
-        fGainDB = value;
-        fSmoothGain.setTargetValue(DB_CO(CLAMP(value, -90.0, 30.0)));
     }
     
     void loadBank()
@@ -266,6 +292,13 @@ protected:
           fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
           loadBank();
           requestChangeOpmFile = false;
+        }
+        if (requestChangeVoice)
+        {
+          for(int i = 0; i < 16; i++){
+            fmtoy_program_change(&fmtoy, i, fVoice);
+          }
+          requestChangeVoice = false;
         }
         
         for (size_t i = 0; i < midiEventCount; i++) {

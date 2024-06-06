@@ -16,6 +16,14 @@ namespace fs = std::filesystem;
 #include <json.hpp>
 using json = nlohmann::json;
 
+extern "C"
+{
+    #include "../fmtoy/tools.h"
+    #include "../fmtoy/fmtoy.h"
+    #include "../fmtoy/libfmvoice/fm_voice.h"
+    #include "../fmtoy/midi.h"
+}
+
 START_NAMESPACE_DISTRHO
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -37,6 +45,9 @@ public:
     std::list<std::string> opm_list;
     int item_current = 0;
     std::string current_file;
+    std::vector<const char*> names_opm_voices;
+    int current_num_opm_voices;
+    int current_voice = 0;
     
     ImGuiPluginUI()
         : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT, true),
@@ -58,6 +69,31 @@ protected:
        A state has changed on the plugin side.
        This is called by the host to inform the UI about state changes.
      */
+     void changeVoiceList(std::string file)
+     {
+       auto path = fs::path(file);
+       if (std::strcmp(path.extension().c_str(), ".opm") != 0)
+       {
+         std::cout << "Not an opm file!" << '\n';
+         return;
+       } else {
+         struct fm_voice_bank bank;
+         fm_voice_bank_init(&bank);
+         size_t data_len;
+         uint8_t *data = load_file(path.c_str(), &data_len);
+         if(!data) {
+           printf("Could not open %s\n", path.c_str());
+           return;
+         }
+         fm_voice_bank_load(&bank, data, data_len);
+         current_num_opm_voices = bank.num_opm_voices;
+         names_opm_voices.clear();
+         for (size_t i = 0; i < bank.num_opm_voices; i++) {
+           names_opm_voices.push_back(bank.opm_voices[i].name);
+         }
+       }
+     }
+     
      void stateChanged(const char* key, const char* value) override
      {
          std::cout << "UI: stateChanged " << key << value << '\n';
@@ -82,6 +118,7 @@ protected:
          {
            std::cout << "UI: in file " << value << '\n';
            current_file = value;
+           changeVoiceList(current_file);
          }
          // trigger repaint
          repaint();
@@ -93,9 +130,14 @@ protected:
     */
     void parameterChanged(uint32_t index, float value) override
     {
-        DISTRHO_SAFE_ASSERT_RETURN(index == 0,);
-
-        fGain = value;
+        switch (index) {
+          case 0:
+            fGain = value;
+            break;
+          case 1:
+            current_voice = int(value);
+            break;
+        }
         repaint();
     }
 
@@ -118,6 +160,12 @@ protected:
         {
             
             ImGui::Text("Current file: %s", fs::path(current_file).filename().c_str());
+            
+            if (ImGui::Combo("Voices", &current_voice, names_opm_voices.data(), names_opm_voices.size()))
+            {
+              std::cout << "voice changed to " << current_voice << '\n';
+              setParameterValue(1, current_voice);
+            }
             
             if (ImGui::Button("Load .opm"))
             {

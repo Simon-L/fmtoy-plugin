@@ -28,6 +28,7 @@ dpf_add_plugin(${NAME}
       ${fmtoy_src}
   FILES_UI
       src/PluginUI.cpp
+      ${fmtoy_src}
       dpf-widgets/opengl/DearImGui.cpp)
 
 target_include_directories(${NAME} PUBLIC src)

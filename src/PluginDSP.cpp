@@ -80,8 +80,8 @@ public:
         
         fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
 
-        for (size_t i = 0; i < 127; i++) {
-          velocity_map[i] = 127.0 * std::pow((float(i) / 127.0), 1.0/2.5);
+        for (size_t i = 0; i < 128; i++) {
+          velocity_map[i] = uint8_t(std::ceil(127.0 * std::pow((float(i) / 127.0), 1.0/2.5)));
         }
     }
     

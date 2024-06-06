@@ -63,6 +63,7 @@ public:
     fs::path res;
     fs::path opm_file;
     std::list<fs::path> opm_list;
+    bool requestChangeOpmFile = false;
    /**
       Plugin class constructor.@n
       You must set all parameter values to their defaults, matching ParameterRanges::def.
@@ -75,17 +76,7 @@ public:
         fSmoothGain.setTimeConstant(0.020f); // 20ms
 
         res = fs::path(getBinaryFilename()).parent_path().parent_path() / "Resources";
-        for (auto const& dir_entry : std::filesystem::directory_iterator{res})
-        {
-          opm_list.push_back(dir_entry.path().filename());
-        }
-        uint n = 0;
-        opm_list.sort();
-        for (auto const& i : opm_list) {
-          // std::cout << n << i << std::endl;
-          n++;
-        }
-        opm_file = opm_list.front();
+        opm_file = res / "default.opm";
         
         fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
 
@@ -95,68 +86,16 @@ public:
 protected:
     // ----------------------------------------------------------------------------------------------------------------
     // Information
-
-   /**
-      Get the plugin label.@n
-      This label is a short restricted name consisting of only _, a-z, A-Z and 0-9 characters.
-    */
-    const char* getLabel() const noexcept override
-    {
-        return "fmtoy";
-    }
-
-   /**
-      Get an extensive comment/description about the plugin.@n
-      Optional, returns nothing by default.
-    */
-    const char* getDescription() const override
-    {
-        return "fmtoy";
-    }
-
-   /**
-      Get the plugin author/maker.
-    */
-    const char* getMaker() const noexcept override
-    {
-        return "vampirefrog, Simon-L, Jean Pierre Cimalando, falkTX";
-    }
-
-   /**
-      Get the plugin license (a single line of text or a URL).@n
-      For commercial plugins this should return some short copyright information.
-    */
-    const char* getLicense() const noexcept override
-    {
-        return "ISC";
-    }
-
-   /**
-      Get the plugin version, in hexadecimal.
-      @see d_version()
-    */
-    uint32_t getVersion() const noexcept override
-    {
-        return d_version(1, 0, 0);
-    }
-
-   /**
-      Get the plugin unique Id.@n
-      This value is used by LADSPA, DSSI and VST plugin formats.
-      @see d_cconst()
-    */
-    int64_t getUniqueId() const noexcept override
-    {
-        return d_cconst('f', 'm', 't', 'y');
-    }
-
+    const char* getLabel() const noexcept override { return "fmtoy";}
+    const char* getDescription() const override { return "fmtoy";}
+    const char* getLicense() const noexcept override { return "ISC";}
+    uint32_t getVersion() const noexcept override { return d_version(1, 0, 0);}
+    int64_t getUniqueId() const noexcept override { return d_cconst('f', 'm', 't', 'y');}
+    const char* getMaker() const noexcept override { return "vampirefrog, Simon-L, Jean Pierre Cimalando, falkTX";}
+    
     // ----------------------------------------------------------------------------------------------------------------
     // Init
 
-   /**
-      Initialize the parameter @a index.@n
-      This function will be called once, shortly after the plugin is created.
-    */
     void initParameter(uint32_t index, Parameter& parameter) override
     {
         DISTRHO_SAFE_ASSERT_RETURN(index == 0,);
@@ -192,13 +131,26 @@ protected:
       {
         state.key = "file";
         state.defaultValue = "";
+        state.hints = kStateIsFilenamePath;
         std::cout << "DSP initState 1 " << state.key << '\n';
       }
     }
     
     void setState(const char* key, const char* value) override
     {
-      std::cout << "!!!!!!!!!!!!!!!DSP setState " << key << " " << value << '\n';
+      if (std::strcmp(key, "file") == 0)
+      {
+        auto old_file = opm_file;
+        opm_file = fs::path(value);
+        if (std::strcmp(opm_file.extension().c_str(), ".opm") != 0)
+        {
+          std::cout << "Not an opm file!" << '\n';
+          opm_file = old_file;
+        } else {
+          std::cout << "OK! " << opm_file << '\n';
+          requestChangeOpmFile = true;
+        }
+      }
     }
    /**
       Get the current value of a parameter.@n
@@ -224,6 +176,25 @@ protected:
         fGainDB = value;
         fSmoothGain.setTargetValue(DB_CO(CLAMP(value, -90.0, 30.0)));
     }
+    
+    void loadBank()
+    {
+      struct fm_voice_bank bank;
+      fm_voice_bank_init(&bank);
+      size_t data_len;
+      uint8_t *data = load_file(opm_file.c_str(), &data_len);
+      if(!data) {
+        printf("Could not open %s\n", opm_file.c_str());
+        return;
+      }
+      fm_voice_bank_load(&bank, data, data_len);
+      fmtoy_append_fm_voice_bank(&fmtoy, &bank);
+      
+      for(int i = 0; i < 16; i++)
+        fmtoy_program_change(&fmtoy, i, 0);
+        
+      std::cout << "Done, loaded " << fmtoy.num_voices << " voices from " << opm_file << " (" << data_len << ") with sampleRate : " << getSampleRate() << '\n';
+    }
 
     // ----------------------------------------------------------------------------------------------------------------
     // Audio/MIDI Processing
@@ -233,25 +204,9 @@ protected:
     */
     void activate() override
     {
-        std::cout << "Activating...  SampleRate : " << getSampleRate() << '\n';
         fSmoothGain.clearToTargetValue();
-        
-        struct fm_voice_bank bank;
-    		fm_voice_bank_init(&bank);
-    		size_t data_len;
-    		uint8_t *data = load_file((res / opm_file).c_str(), &data_len);
-        std::cout << "got data_len: " << data_len  << '\n';
-        if(!data) {
-    			fprintf(stderr, "Could not open %s\n", opm_file.c_str());
-    			return;
-    		}
-    		fm_voice_bank_load(&bank, data, data_len);
-    		fmtoy_append_fm_voice_bank(&fmtoy, &bank);
-        
-        for(int i = 0; i < 16; i++)
-          fmtoy_program_change(&fmtoy, i, 0);
+        loadBank();
           
-        std::cout << "Done, loaded " << opm_file << " with sampleRate : " << getSampleRate() << '\n';
     }
     
 #define EVENT_NOTEON 0x90
@@ -302,6 +257,14 @@ protected:
     */
     void run(const float** inputs, float** outputs, uint32_t frames, const MidiEvent* midiEvents, uint32_t midiEventCount) override
     {
+        if (requestChangeOpmFile)
+        {
+          fmtoy_destroy(&fmtoy);
+          fmtoy_init(&fmtoy, DEFAULT_CLOCK, getSampleRate());
+          loadBank();
+          requestChangeOpmFile = false;
+        }
+        
         for (size_t i = 0; i < midiEventCount; i++) {
           handleMidi(&midiEvents[i]);
         }
@@ -331,6 +294,7 @@ protected:
     void sampleRateChanged(double newSampleRate) override
     {
         fSmoothGain.setSampleRate(newSampleRate);
+        std::cout << "SR changed to " << newSampleRate << '\n';
     }
 
     // ----------------------------------------------------------------------------------------------------------------

@@ -35,7 +35,7 @@ public:
     */
     fs::path res;
     std::list<std::string> opm_list;
-    static int item_current = 0;
+    int item_current = 0;
     
     ImGuiPluginUI()
         : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT, true),
@@ -66,34 +66,16 @@ protected:
          if (std::strcmp(key, "file_list") == 0)
          {
            opm_list = std::list<std::string>(json::parse(value));
-           uint n = 0;
-           for (auto const& i : opm_list) {
-             // std::cout << n << " : " << fs::path(res / i).c_str() << std::endl;
-             n++;
-           }
+           // uint n = 0;
+           // for (auto const& i : opm_list) {
+           //   // std::cout << n << " : " << fs::path(res / i).c_str() << std::endl;
+           //   n++;
+           // }
          }
          if (std::strcmp(key, "file") == 0)
          {
            std::cout << "UI stateChanged file " << value << '\n';
          }
-         //     fParamGrid[0] = valueOnOff;
-         // else if (std::strcmp(key, "top-center") == 0)
-         //     fParamGrid[1] = valueOnOff;
-         // else if (std::strcmp(key, "top-right") == 0)
-         //     fParamGrid[2] = valueOnOff;
-         // else if (std::strcmp(key, "middle-left") == 0)
-         //     fParamGrid[3] = valueOnOff;
-         // else if (std::strcmp(key, "middle-center") == 0)
-         //     fParamGrid[4] = valueOnOff;
-         // else if (std::strcmp(key, "middle-right") == 0)
-         //     fParamGrid[5] = valueOnOff;
-         // else if (std::strcmp(key, "bottom-left") == 0)
-         //     fParamGrid[6] = valueOnOff;
-         // else if (std::strcmp(key, "bottom-center") == 0)
-         //     fParamGrid[7] = valueOnOff;
-         // else if (std::strcmp(key, "bottom-right") == 0)
-         //     fParamGrid[8] = valueOnOff;
-
          // trigger repaint
          repaint();
      }
@@ -122,12 +104,17 @@ protected:
         const float height = getHeight();
         const float margin = 20.0f * getScaleFactor();
 
-        ImGui::SetNextWindowPos(ImVec2(margin, margin));
-        ImGui::SetNextWindowSize(ImVec2(width - 2 * margin, height - 2 * margin));
+        ImGui::SetNextWindowPos(ImVec2(0, 0));
+        ImGui::SetNextWindowSize(ImVec2(width, height));
 
-        if (ImGui::Begin("fmtoy", nullptr, ImGuiWindowFlags_NoResize))
+        if (ImGui::Begin("fmtoy", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
         {
 
+            if (ImGui::Button("Load .opm"))
+            {
+              requestStateFile("file");
+            }
+            
             if (ImGui::SliderFloat("Gain (dB)", &fGain, -90.0f, 30.0f))
             {
                 if (ImGui::IsItemActivated())
@@ -135,22 +122,13 @@ protected:
 
                 setParameterValue(0, fGain);
             }
-            
-            std::vector<const char*> strings;
-            for (auto const& f : opm_list) {
-              strings.push_back(f.c_str());
-            }
-            if (ImGui::Combo("File", &item_current, strings.data(), strings.size()))
-            {
-              setState("file", strings[item_current]);
-            }
                 
             if (ImGui::IsItemDeactivated())
             {
                 editParameter(0, false);
             }
             
-            ImGui::ShowDemoWindow(nullptr);
+            // ImGui::ShowDemoWindow(nullptr);
         }
         ImGui::End();
     }

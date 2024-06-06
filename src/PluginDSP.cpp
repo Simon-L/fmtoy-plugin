@@ -133,7 +133,7 @@ protected:
       if (index == 1)
       {
         state.key = "file";
-        state.defaultValue = "";
+        state.defaultValue = opm_file.c_str();
         state.hints = kStateIsFilenamePath;
         std::cout << "DSP initState 1 " << state.key << '\n';
       }

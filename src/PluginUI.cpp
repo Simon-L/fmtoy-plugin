@@ -36,6 +36,7 @@ public:
     fs::path res;
     std::list<std::string> opm_list;
     int item_current = 0;
+    std::string current_file;
     
     ImGuiPluginUI()
         : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT, true),
@@ -59,9 +60,14 @@ protected:
      */
      void stateChanged(const char* key, const char* value) override
      {
-         // std::cout << "UI: stateChanged " << key << value << '\n';
+         std::cout << "UI: stateChanged " << key << value << '\n';
          const bool valueOnOff = (std::strcmp(value, "true") == 0);
 
+         if (std::strlen(value) == 0)
+         {
+           std::cout << "Error empty state " << key << " " << value << '\n';
+           return;
+         }
          // check which block changed
          if (std::strcmp(key, "file_list") == 0)
          {
@@ -74,7 +80,8 @@ protected:
          }
          if (std::strcmp(key, "file") == 0)
          {
-           std::cout << "UI stateChanged file " << value << '\n';
+           std::cout << "UI: in file " << value << '\n';
+           current_file = value;
          }
          // trigger repaint
          repaint();
@@ -109,7 +116,9 @@ protected:
 
         if (ImGui::Begin("fmtoy", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
         {
-
+            
+            ImGui::Text("Current file: %s", fs::path(current_file).filename().c_str());
+            
             if (ImGui::Button("Load .opm"))
             {
               requestStateFile("file");
